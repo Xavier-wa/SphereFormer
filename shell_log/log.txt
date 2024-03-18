@@ -1,0 +1,1087 @@
+nohup: ignoring input
+Traceback (most recent call last):
+  File "/home/guye/RidarS/SphereFormer/train.py", line 21, in <module>
+    from tensorboardX import SummaryWriter
+ModuleNotFoundError: No module named 'tensorboardX'
+nohup: ignoring input
+[03/18 15:13:31 main-logger]: a: 0.0125
+arch: unet_spherical_transformer
+aug: True
+base_lr: 0.006
+batch_size: 12
+batch_size_val: 1
+block_reps: 2
+block_residual: True
+class_weight: [3.1557, 8.7029, 7.8281, 6.1354, 6.3161, 7.9937, 8.9704, 10.1922, 1.6155, 4.2187, 1.9385, 5.5455, 2.0198, 2.6261, 1.3212, 5.1102, 2.5492, 5.8585, 7.3929]
+classes: 19
+data_name: semantic_kitti
+data_root: /mnt/storage/dataset/semanticKitti/dataset/
+dist_backend: nccl
+dist_url: tcp://127.0.0.1:6789
+distributed: False
+drop_path_rate: 0.3
+drop_rate: 0.5W
+epochs: 50
+evalType: test
+eval_freq: 1
+eval_path: /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences/
+evaluate: True
+fea_dim: 6
+grad_checkpoint_layers: []
+ignore_label: 255
+input_c: 4
+label_mapping: util/semantic-kitti.yaml
+layers: [32, 64, 128, 256, 256]
+loss_name: ce_loss
+m: 32
+manual_seed: 123
+max_batch_points: 1000000
+momentum: 0.9
+multiprocessing_distributed: False
+ngpus_per_node: 1
+patch_size: [0.05 0.05 0.05]
+pc_range: [[-51.2, -51.2, -4], [51.2, 51.2, 2.4]]
+power: 0.9
+print_freq: 10
+quant_size_scale: 24
+rank: 0
+rel_key: True
+rel_query: True
+rel_value: True
+resume: None
+save_freq: 1
+save_path: runs/semantic_kitti_unet32_spherical_transformer
+scheduler: Poly
+scheduler_update: step
+sphere_layers: [1, 2, 3, 4, 5]
+start_epoch: 0
+sync_bn: False
+train_gpu: [0]
+transformer_lr_scale: 0.1
+use_amp: True
+use_tta: True
+use_xyz: True
+val: True
+vote_num: 4
+voxel_max: 120000
+voxel_size: [0.05, 0.05, 0.05]
+weight: /home/guye/RidarS/SphereFormer/pretrained/model_semantic_kitti.pth
+weight_decay: 0.02
+window_size: 6
+window_size_scale: [2.0, 1.5]
+window_size_sphere: [2, 2, 80]
+workers: 10
+world_size: 1
+xyz_norm: False
+[03/18 15:13:35 main-logger]: => creating model ...
+[03/18 15:13:35 main-logger]: Classes: 19
+[03/18 15:13:35 main-logger]: DataParallel(
+  (module): Semantic(
+    (input_conv): SparseSequential(
+      (0): SubMConv3d(4, 32, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+    )
+    (unet): UBlock(
+      (blocks): SparseSequential(
+        (block0): ResidualBlock(
+          (i_branch): SparseSequential(
+            (0): Identity()
+          )
+          (conv_branch): SparseSequential(
+            (0): BatchNorm1d(32, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+            (1): ReLU()
+            (2): SubMConv3d(32, 32, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+            (3): BatchNorm1d(32, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+            (4): ReLU()
+            (5): SubMConv3d(32, 32, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+          )
+        )
+        (block1): ResidualBlock(
+          (i_branch): SparseSequential(
+            (0): Identity()
+          )
+          (conv_branch): SparseSequential(
+            (0): BatchNorm1d(32, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+            (1): ReLU()
+            (2): SubMConv3d(32, 32, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+            (3): BatchNorm1d(32, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+            (4): ReLU()
+            (5): SubMConv3d(32, 32, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+          )
+        )
+      )
+      (transformer_block): SphereFormer(
+        (norm1): LayerNorm((32,), eps=1e-05, elementwise_affine=True)
+        (attn): SparseMultiheadSASphereConcat(
+          (qkv): Linear(in_features=32, out_features=96, bias=True)
+          (attn_drop): Dropout(p=0.0, inplace=True)
+          (proj): Linear(in_features=32, out_features=32, bias=True)
+          (proj_drop): Dropout(p=0.0, inplace=True)
+        )
+        (drop_path): Identity()
+        (norm2): LayerNorm((32,), eps=1e-05, elementwise_affine=True)
+        (mlp): Mlp(
+          (fc1): Linear(in_features=32, out_features=128, bias=True)
+          (act): GELU()
+          (fc2): Linear(in_features=128, out_features=32, bias=True)
+          (drop): Dropout(p=0.0, inplace=True)
+        )
+      )
+      (conv): SparseSequential(
+        (0): BatchNorm1d(32, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+        (1): ReLU()
+        (2): SparseConv3d(32, 64, kernel_size=[2, 2, 2], stride=[2, 2, 2], padding=[0, 0, 0], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.Native)
+      )
+      (u): UBlock(
+        (blocks): SparseSequential(
+          (block0): ResidualBlock(
+            (i_branch): SparseSequential(
+              (0): Identity()
+            )
+            (conv_branch): SparseSequential(
+              (0): BatchNorm1d(64, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+              (1): ReLU()
+              (2): SubMConv3d(64, 64, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+              (3): BatchNorm1d(64, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+              (4): ReLU()
+              (5): SubMConv3d(64, 64, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+            )
+          )
+          (block1): ResidualBlock(
+            (i_branch): SparseSequential(
+              (0): Identity()
+            )
+            (conv_branch): SparseSequential(
+              (0): BatchNorm1d(64, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+              (1): ReLU()
+              (2): SubMConv3d(64, 64, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+              (3): BatchNorm1d(64, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+              (4): ReLU()
+              (5): SubMConv3d(64, 64, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+            )
+          )
+        )
+        (transformer_block): SphereFormer(
+          (norm1): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+          (attn): SparseMultiheadSASphereConcat(
+            (qkv): Linear(in_features=64, out_features=192, bias=True)
+            (attn_drop): Dropout(p=0.0, inplace=True)
+            (proj): Linear(in_features=64, out_features=64, bias=True)
+            (proj_drop): Dropout(p=0.0, inplace=True)
+          )
+          (drop_path): DropPath(drop_prob=0.050)
+          (norm2): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+          (mlp): Mlp(
+            (fc1): Linear(in_features=64, out_features=256, bias=True)
+            (act): GELU()
+            (fc2): Linear(in_features=256, out_features=64, bias=True)
+            (drop): Dropout(p=0.0, inplace=True)
+          )
+        )
+        (conv): SparseSequential(
+          (0): BatchNorm1d(64, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+          (1): ReLU()
+          (2): SparseConv3d(64, 128, kernel_size=[2, 2, 2], stride=[2, 2, 2], padding=[0, 0, 0], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.Native)
+        )
+        (u): UBlock(
+          (blocks): SparseSequential(
+            (block0): ResidualBlock(
+              (i_branch): SparseSequential(
+                (0): Identity()
+              )
+              (conv_branch): SparseSequential(
+                (0): BatchNorm1d(128, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+                (1): ReLU()
+                (2): SubMConv3d(128, 128, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+                (3): BatchNorm1d(128, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+                (4): ReLU()
+                (5): SubMConv3d(128, 128, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+              )
+            )
+            (block1): ResidualBlock(
+              (i_branch): SparseSequential(
+                (0): Identity()
+              )
+              (conv_branch): SparseSequential(
+                (0): BatchNorm1d(128, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+                (1): ReLU()
+                (2): SubMConv3d(128, 128, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+                (3): BatchNorm1d(128, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+                (4): ReLU()
+                (5): SubMConv3d(128, 128, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+              )
+            )
+          )
+          (transformer_block): SphereFormer(
+            (norm1): LayerNorm((128,), eps=1e-05, elementwise_affine=True)
+            (attn): SparseMultiheadSASphereConcat(
+              (qkv): Linear(in_features=128, out_features=384, bias=True)
+              (attn_drop): Dropout(p=0.0, inplace=True)
+              (proj): Linear(in_features=128, out_features=128, bias=True)
+              (proj_drop): Dropout(p=0.0, inplace=True)
+            )
+            (drop_path): DropPath(drop_prob=0.100)
+            (norm2): LayerNorm((128,), eps=1e-05, elementwise_affine=True)
+            (mlp): Mlp(
+              (fc1): Linear(in_features=128, out_features=512, bias=True)
+              (act): GELU()
+              (fc2): Linear(in_features=512, out_features=128, bias=True)
+              (drop): Dropout(p=0.0, inplace=True)
+            )
+          )
+          (conv): SparseSequential(
+            (0): BatchNorm1d(128, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+            (1): ReLU()
+            (2): SparseConv3d(128, 256, kernel_size=[2, 2, 2], stride=[2, 2, 2], padding=[0, 0, 0], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.Native)
+          )
+          (u): UBlock(
+            (blocks): SparseSequential(
+              (block0): ResidualBlock(
+                (i_branch): SparseSequential(
+                  (0): Identity()
+                )
+                (conv_branch): SparseSequential(
+                  (0): BatchNorm1d(256, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+                  (1): ReLU()
+                  (2): SubMConv3d(256, 256, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+                  (3): BatchNorm1d(256, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+                  (4): ReLU()
+                  (5): SubMConv3d(256, 256, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+                )
+              )
+              (block1): ResidualBlock(
+                (i_branch): SparseSequential(
+                  (0): Identity()
+                )
+                (conv_branch): SparseSequential(
+                  (0): BatchNorm1d(256, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+                  (1): ReLU()
+                  (2): SubMConv3d(256, 256, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+                  (3): BatchNorm1d(256, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+                  (4): ReLU()
+                  (5): SubMConv3d(256, 256, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+                )
+              )
+            )
+            (transformer_block): SphereFormer(
+              (norm1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+              (attn): SparseMultiheadSASphereConcat(
+                (qkv): Linear(in_features=256, out_features=768, bias=True)
+                (attn_drop): Dropout(p=0.0, inplace=True)
+                (proj): Linear(in_features=256, out_features=256, bias=True)
+                (proj_drop): Dropout(p=0.0, inplace=True)
+              )
+              (drop_path): DropPath(drop_prob=0.150)
+              (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+              (mlp): Mlp(
+                (fc1): Linear(in_features=256, out_features=1024, bias=True)
+                (act): GELU()
+                (fc2): Linear(in_features=1024, out_features=256, bias=True)
+                (drop): Dropout(p=0.0, inplace=True)
+              )
+            )
+            (conv): SparseSequential(
+              (0): BatchNorm1d(256, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+              (1): ReLU()
+              (2): SparseConv3d(256, 256, kernel_size=[2, 2, 2], stride=[2, 2, 2], padding=[0, 0, 0], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.Native)
+            )
+            (u): UBlock(
+              (blocks): SparseSequential(
+                (block0): ResidualBlock(
+                  (i_branch): SparseSequential(
+                    (0): Identity()
+                  )
+                  (conv_branch): SparseSequential(
+                    (0): BatchNorm1d(256, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+                    (1): ReLU()
+                    (2): SubMConv3d(256, 256, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+                    (3): BatchNorm1d(256, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+                    (4): ReLU()
+                    (5): SubMConv3d(256, 256, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+                  )
+                )
+                (block1): ResidualBlock(
+                  (i_branch): SparseSequential(
+                    (0): Identity()
+                  )
+                  (conv_branch): SparseSequential(
+                    (0): BatchNorm1d(256, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+                    (1): ReLU()
+                    (2): SubMConv3d(256, 256, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+                    (3): BatchNorm1d(256, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+                    (4): ReLU()
+                    (5): SubMConv3d(256, 256, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+                  )
+                )
+              )
+              (transformer_block): SphereFormer(
+                (norm1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+                (attn): SparseMultiheadSASphereConcat(
+                  (qkv): Linear(in_features=256, out_features=768, bias=True)
+                  (attn_drop): Dropout(p=0.0, inplace=True)
+                  (proj): Linear(in_features=256, out_features=256, bias=True)
+                  (proj_drop): Dropout(p=0.0, inplace=True)
+                )
+                (drop_path): DropPath(drop_prob=0.200)
+                (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+                (mlp): Mlp(
+                  (fc1): Linear(in_features=256, out_features=1024, bias=True)
+                  (act): GELU()
+                  (fc2): Linear(in_features=1024, out_features=256, bias=True)
+                  (drop): Dropout(p=0.0, inplace=True)
+                )
+              )
+            )
+            (deconv): SparseSequential(
+              (0): BatchNorm1d(256, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+              (1): ReLU()
+              (2): SparseInverseConv3d(256, 256, kernel_size=[2, 2, 2], stride=[1, 1, 1], padding=[0, 0, 0], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.Native)
+            )
+            (blocks_tail): SparseSequential(
+              (block0): ResidualBlock(
+                (i_branch): SparseSequential(
+                  (0): SubMConv3d(512, 256, kernel_size=[1, 1, 1], stride=[1, 1, 1], padding=[0, 0, 0], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+                )
+                (conv_branch): SparseSequential(
+                  (0): BatchNorm1d(512, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+                  (1): ReLU()
+                  (2): SubMConv3d(512, 256, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+                  (3): BatchNorm1d(256, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+                  (4): ReLU()
+                  (5): SubMConv3d(256, 256, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+                )
+              )
+              (block1): ResidualBlock(
+                (i_branch): SparseSequential(
+                  (0): Identity()
+                )
+                (conv_branch): SparseSequential(
+                  (0): BatchNorm1d(256, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+                  (1): ReLU()
+                  (2): SubMConv3d(256, 256, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+                  (3): BatchNorm1d(256, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+                  (4): ReLU()
+                  (5): SubMConv3d(256, 256, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+                )
+              )
+            )
+          )
+          (deconv): SparseSequential(
+            (0): BatchNorm1d(256, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+            (1): ReLU()
+            (2): SparseInverseConv3d(256, 128, kernel_size=[2, 2, 2], stride=[1, 1, 1], padding=[0, 0, 0], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.Native)
+          )
+          (blocks_tail): SparseSequential(
+            (block0): ResidualBlock(
+              (i_branch): SparseSequential(
+                (0): SubMConv3d(256, 128, kernel_size=[1, 1, 1], stride=[1, 1, 1], padding=[0, 0, 0], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+              )
+              (conv_branch): SparseSequential(
+                (0): BatchNorm1d(256, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+                (1): ReLU()
+                (2): SubMConv3d(256, 128, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+                (3): BatchNorm1d(128, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+                (4): ReLU()
+                (5): SubMConv3d(128, 128, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+              )
+            )
+            (block1): ResidualBlock(
+              (i_branch): SparseSequential(
+                (0): Identity()
+              )
+              (conv_branch): SparseSequential(
+                (0): BatchNorm1d(128, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+                (1): ReLU()
+                (2): SubMConv3d(128, 128, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+                (3): BatchNorm1d(128, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+                (4): ReLU()
+                (5): SubMConv3d(128, 128, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+              )
+            )
+          )
+        )
+        (deconv): SparseSequential(
+          (0): BatchNorm1d(128, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+          (1): ReLU()
+          (2): SparseInverseConv3d(128, 64, kernel_size=[2, 2, 2], stride=[1, 1, 1], padding=[0, 0, 0], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.Native)
+        )
+        (blocks_tail): SparseSequential(
+          (block0): ResidualBlock(
+            (i_branch): SparseSequential(
+              (0): SubMConv3d(128, 64, kernel_size=[1, 1, 1], stride=[1, 1, 1], padding=[0, 0, 0], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+            )
+            (conv_branch): SparseSequential(
+              (0): BatchNorm1d(128, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+              (1): ReLU()
+              (2): SubMConv3d(128, 64, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+              (3): BatchNorm1d(64, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+              (4): ReLU()
+              (5): SubMConv3d(64, 64, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+            )
+          )
+          (block1): ResidualBlock(
+            (i_branch): SparseSequential(
+              (0): Identity()
+            )
+            (conv_branch): SparseSequential(
+              (0): BatchNorm1d(64, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+              (1): ReLU()
+              (2): SubMConv3d(64, 64, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+              (3): BatchNorm1d(64, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+              (4): ReLU()
+              (5): SubMConv3d(64, 64, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+            )
+          )
+        )
+      )
+      (deconv): SparseSequential(
+        (0): BatchNorm1d(64, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+        (1): ReLU()
+        (2): SparseInverseConv3d(64, 32, kernel_size=[2, 2, 2], stride=[1, 1, 1], padding=[0, 0, 0], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.Native)
+      )
+      (blocks_tail): SparseSequential(
+        (block0): ResidualBlock(
+          (i_branch): SparseSequential(
+            (0): SubMConv3d(64, 32, kernel_size=[1, 1, 1], stride=[1, 1, 1], padding=[0, 0, 0], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+          )
+          (conv_branch): SparseSequential(
+            (0): BatchNorm1d(64, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+            (1): ReLU()
+            (2): SubMConv3d(64, 32, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+            (3): BatchNorm1d(32, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+            (4): ReLU()
+            (5): SubMConv3d(32, 32, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+          )
+        )
+        (block1): ResidualBlock(
+          (i_branch): SparseSequential(
+            (0): Identity()
+          )
+          (conv_branch): SparseSequential(
+            (0): BatchNorm1d(32, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+            (1): ReLU()
+            (2): SubMConv3d(32, 32, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+            (3): BatchNorm1d(32, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+            (4): ReLU()
+            (5): SubMConv3d(32, 32, kernel_size=[3, 3, 3], stride=[1, 1, 1], padding=[1, 1, 1], dilation=[1, 1, 1], output_padding=[0, 0, 0], bias=False, algo=ConvAlgo.MaskImplicitGemm)
+          )
+        )
+      )
+    )
+    (output_layer): SparseSequential(
+      (0): BatchNorm1d(32, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+      (1): ReLU()
+    )
+    (linear): Linear(in_features=32, out_features=19, bias=True)
+  )
+)
+[03/18 15:13:35 main-logger]: #Model parameters: 32311715
+[03/18 15:13:35 main-logger]: class_weight: tensor([ 3.1557,  8.7029,  7.8281,  6.1354,  6.3161,  7.9937,  8.9704, 10.1922,
+         1.6155,  4.2187,  1.9385,  5.5455,  2.0198,  2.6261,  1.3212,  5.1102,
+         2.5492,  5.8585,  7.3929], device='cuda:0')
+[03/18 15:13:35 main-logger]: loss_name: ce_loss
+[03/18 15:13:35 main-logger]: => loading weight '/home/guye/RidarS/SphereFormer/pretrained/model_semantic_kitti.pth'
+[03/18 15:13:35 main-logger]: => loaded weight '/home/guye/RidarS/SphereFormer/pretrained/model_semantic_kitti.pth'
+[03/18 15:13:35 main-logger]: train_data samples: '19130'
+[03/18 15:13:35 main-logger]: val_data samples: '4071'
+[03/18 15:13:35 main-logger]: scheduler: Poly. scheduler_update: step
+[03/18 15:13:35 main-logger]: >>>>>>>>>>>>>>>> Start Evaluation >>>>>>>>>>>>>>>>
+[03/18 15:13:41 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000000.label >>>>>>>>>>>>>>>>
+[03/18 15:13:43 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000001.label >>>>>>>>>>>>>>>>
+[03/18 15:13:44 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000002.label >>>>>>>>>>>>>>>>
+[03/18 15:13:45 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000003.label >>>>>>>>>>>>>>>>
+[03/18 15:13:47 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000004.label >>>>>>>>>>>>>>>>
+[03/18 15:13:48 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000005.label >>>>>>>>>>>>>>>>
+[03/18 15:13:49 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000006.label >>>>>>>>>>>>>>>>
+[03/18 15:13:51 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000007.label >>>>>>>>>>>>>>>>
+[03/18 15:13:52 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000008.label >>>>>>>>>>>>>>>>
+[03/18 15:13:53 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000009.label >>>>>>>>>>>>>>>>
+[03/18 15:13:55 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000010.label >>>>>>>>>>>>>>>>
+[03/18 15:13:56 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000011.label >>>>>>>>>>>>>>>>
+[03/18 15:13:57 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000012.label >>>>>>>>>>>>>>>>
+[03/18 15:13:59 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000013.label >>>>>>>>>>>>>>>>
+[03/18 15:14:00 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000014.label >>>>>>>>>>>>>>>>
+[03/18 15:14:01 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000015.label >>>>>>>>>>>>>>>>
+[03/18 15:14:03 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000016.label >>>>>>>>>>>>>>>>
+[03/18 15:14:04 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000017.label >>>>>>>>>>>>>>>>
+[03/18 15:14:05 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000018.label >>>>>>>>>>>>>>>>
+[03/18 15:14:07 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000019.label >>>>>>>>>>>>>>>>
+[03/18 15:14:08 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000020.label >>>>>>>>>>>>>>>>
+[03/18 15:14:09 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000021.label >>>>>>>>>>>>>>>>
+[03/18 15:14:11 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000022.label >>>>>>>>>>>>>>>>
+[03/18 15:14:12 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000023.label >>>>>>>>>>>>>>>>
+[03/18 15:14:13 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000024.label >>>>>>>>>>>>>>>>
+[03/18 15:14:14 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000025.label >>>>>>>>>>>>>>>>
+[03/18 15:14:16 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000026.label >>>>>>>>>>>>>>>>
+[03/18 15:14:17 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000027.label >>>>>>>>>>>>>>>>
+[03/18 15:14:18 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000028.label >>>>>>>>>>>>>>>>
+[03/18 15:14:19 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000029.label >>>>>>>>>>>>>>>>
+[03/18 15:14:21 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000030.label >>>>>>>>>>>>>>>>
+[03/18 15:14:22 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000031.label >>>>>>>>>>>>>>>>
+[03/18 15:14:24 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000032.label >>>>>>>>>>>>>>>>
+[03/18 15:14:25 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000033.label >>>>>>>>>>>>>>>>
+[03/18 15:14:26 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000034.label >>>>>>>>>>>>>>>>
+[03/18 15:14:27 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000035.label >>>>>>>>>>>>>>>>
+[03/18 15:14:29 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000036.label >>>>>>>>>>>>>>>>
+[03/18 15:14:30 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000037.label >>>>>>>>>>>>>>>>
+[03/18 15:14:31 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000038.label >>>>>>>>>>>>>>>>
+[03/18 15:14:33 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000039.label >>>>>>>>>>>>>>>>
+[03/18 15:14:34 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000040.label >>>>>>>>>>>>>>>>
+[03/18 15:14:35 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000041.label >>>>>>>>>>>>>>>>
+[03/18 15:14:37 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000042.label >>>>>>>>>>>>>>>>
+[03/18 15:14:38 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000043.label >>>>>>>>>>>>>>>>
+[03/18 15:14:39 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000044.label >>>>>>>>>>>>>>>>
+[03/18 15:14:40 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000045.label >>>>>>>>>>>>>>>>
+[03/18 15:14:42 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000046.label >>>>>>>>>>>>>>>>
+[03/18 15:14:43 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000047.label >>>>>>>>>>>>>>>>
+[03/18 15:14:44 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000048.label >>>>>>>>>>>>>>>>
+[03/18 15:14:45 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000049.label >>>>>>>>>>>>>>>>
+[03/18 15:14:47 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000050.label >>>>>>>>>>>>>>>>
+[03/18 15:14:48 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000051.label >>>>>>>>>>>>>>>>
+[03/18 15:14:49 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000052.label >>>>>>>>>>>>>>>>
+[03/18 15:14:51 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000053.label >>>>>>>>>>>>>>>>
+[03/18 15:14:52 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000054.label >>>>>>>>>>>>>>>>
+[03/18 15:14:53 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000055.label >>>>>>>>>>>>>>>>
+[03/18 15:14:54 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000056.label >>>>>>>>>>>>>>>>
+[03/18 15:14:56 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000057.label >>>>>>>>>>>>>>>>
+[03/18 15:14:57 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000058.label >>>>>>>>>>>>>>>>
+[03/18 15:14:58 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000059.label >>>>>>>>>>>>>>>>
+[03/18 15:14:59 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000060.label >>>>>>>>>>>>>>>>
+[03/18 15:15:01 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000061.label >>>>>>>>>>>>>>>>
+[03/18 15:15:02 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000062.label >>>>>>>>>>>>>>>>
+[03/18 15:15:03 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000063.label >>>>>>>>>>>>>>>>
+[03/18 15:15:05 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000064.label >>>>>>>>>>>>>>>>
+[03/18 15:15:06 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000065.label >>>>>>>>>>>>>>>>
+[03/18 15:15:07 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000066.label >>>>>>>>>>>>>>>>
+[03/18 15:15:08 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000067.label >>>>>>>>>>>>>>>>
+[03/18 15:15:10 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000068.label >>>>>>>>>>>>>>>>
+[03/18 15:15:11 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000069.label >>>>>>>>>>>>>>>>
+[03/18 15:15:12 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000070.label >>>>>>>>>>>>>>>>
+[03/18 15:15:13 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000071.label >>>>>>>>>>>>>>>>
+[03/18 15:15:14 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000072.label >>>>>>>>>>>>>>>>
+[03/18 15:15:16 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000073.label >>>>>>>>>>>>>>>>
+[03/18 15:15:17 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000074.label >>>>>>>>>>>>>>>>
+[03/18 15:15:18 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000075.label >>>>>>>>>>>>>>>>
+[03/18 15:15:19 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000076.label >>>>>>>>>>>>>>>>
+[03/18 15:15:21 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000077.label >>>>>>>>>>>>>>>>
+[03/18 15:15:22 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000078.label >>>>>>>>>>>>>>>>
+[03/18 15:15:23 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000079.label >>>>>>>>>>>>>>>>
+[03/18 15:15:24 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000080.label >>>>>>>>>>>>>>>>
+[03/18 15:15:26 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000081.label >>>>>>>>>>>>>>>>
+[03/18 15:15:27 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000082.label >>>>>>>>>>>>>>>>
+[03/18 15:15:28 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000083.label >>>>>>>>>>>>>>>>
+[03/18 15:15:29 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000084.label >>>>>>>>>>>>>>>>
+[03/18 15:15:30 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000085.label >>>>>>>>>>>>>>>>
+[03/18 15:15:32 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000086.label >>>>>>>>>>>>>>>>
+[03/18 15:15:33 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000087.label >>>>>>>>>>>>>>>>
+[03/18 15:15:34 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000088.label >>>>>>>>>>>>>>>>
+[03/18 15:15:35 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000089.label >>>>>>>>>>>>>>>>
+[03/18 15:15:37 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000090.label >>>>>>>>>>>>>>>>
+[03/18 15:15:38 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000091.label >>>>>>>>>>>>>>>>
+[03/18 15:15:39 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000092.label >>>>>>>>>>>>>>>>
+[03/18 15:15:40 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000093.label >>>>>>>>>>>>>>>>
+[03/18 15:15:42 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000094.label >>>>>>>>>>>>>>>>
+[03/18 15:15:43 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000095.label >>>>>>>>>>>>>>>>
+[03/18 15:15:44 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000096.label >>>>>>>>>>>>>>>>
+[03/18 15:15:46 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000097.label >>>>>>>>>>>>>>>>
+[03/18 15:15:47 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000098.label >>>>>>>>>>>>>>>>
+[03/18 15:15:49 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000099.label >>>>>>>>>>>>>>>>
+[03/18 15:15:50 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000100.label >>>>>>>>>>>>>>>>
+[03/18 15:15:51 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000101.label >>>>>>>>>>>>>>>>
+[03/18 15:15:53 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000102.label >>>>>>>>>>>>>>>>
+[03/18 15:15:54 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000103.label >>>>>>>>>>>>>>>>
+[03/18 15:15:55 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000104.label >>>>>>>>>>>>>>>>
+[03/18 15:15:57 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000105.label >>>>>>>>>>>>>>>>
+[03/18 15:15:58 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000106.label >>>>>>>>>>>>>>>>
+[03/18 15:15:59 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000107.label >>>>>>>>>>>>>>>>
+[03/18 15:16:01 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000108.label >>>>>>>>>>>>>>>>
+[03/18 15:16:02 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000109.label >>>>>>>>>>>>>>>>
+[03/18 15:16:03 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000110.label >>>>>>>>>>>>>>>>
+[03/18 15:16:05 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000111.label >>>>>>>>>>>>>>>>
+[03/18 15:16:06 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000112.label >>>>>>>>>>>>>>>>
+[03/18 15:16:07 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000113.label >>>>>>>>>>>>>>>>
+[03/18 15:16:08 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000114.label >>>>>>>>>>>>>>>>
+[03/18 15:16:10 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000115.label >>>>>>>>>>>>>>>>
+[03/18 15:16:11 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000116.label >>>>>>>>>>>>>>>>
+[03/18 15:16:12 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000117.label >>>>>>>>>>>>>>>>
+[03/18 15:16:13 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000118.label >>>>>>>>>>>>>>>>
+[03/18 15:16:15 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000119.label >>>>>>>>>>>>>>>>
+[03/18 15:16:16 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000120.label >>>>>>>>>>>>>>>>
+[03/18 15:16:17 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000121.label >>>>>>>>>>>>>>>>
+[03/18 15:16:18 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000122.label >>>>>>>>>>>>>>>>
+[03/18 15:16:20 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000123.label >>>>>>>>>>>>>>>>
+[03/18 15:16:21 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000124.label >>>>>>>>>>>>>>>>
+[03/18 15:16:22 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000125.label >>>>>>>>>>>>>>>>
+[03/18 15:16:24 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000126.label >>>>>>>>>>>>>>>>
+[03/18 15:16:25 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000127.label >>>>>>>>>>>>>>>>
+[03/18 15:16:26 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000128.label >>>>>>>>>>>>>>>>
+[03/18 15:16:27 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000129.label >>>>>>>>>>>>>>>>
+[03/18 15:16:29 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000130.label >>>>>>>>>>>>>>>>
+[03/18 15:16:30 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000131.label >>>>>>>>>>>>>>>>
+[03/18 15:16:31 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000132.label >>>>>>>>>>>>>>>>
+[03/18 15:16:32 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000133.label >>>>>>>>>>>>>>>>
+[03/18 15:16:34 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000134.label >>>>>>>>>>>>>>>>
+[03/18 15:16:35 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000135.label >>>>>>>>>>>>>>>>
+[03/18 15:16:36 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000136.label >>>>>>>>>>>>>>>>
+[03/18 15:16:37 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000137.label >>>>>>>>>>>>>>>>
+[03/18 15:16:39 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000138.label >>>>>>>>>>>>>>>>
+[03/18 15:16:40 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000139.label >>>>>>>>>>>>>>>>
+[03/18 15:16:41 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000140.label >>>>>>>>>>>>>>>>
+[03/18 15:16:43 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000141.label >>>>>>>>>>>>>>>>
+[03/18 15:16:44 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000142.label >>>>>>>>>>>>>>>>
+[03/18 15:16:45 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000143.label >>>>>>>>>>>>>>>>
+[03/18 15:16:47 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000144.label >>>>>>>>>>>>>>>>
+[03/18 15:16:48 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000145.label >>>>>>>>>>>>>>>>
+[03/18 15:16:49 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000146.label >>>>>>>>>>>>>>>>
+[03/18 15:16:51 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000147.label >>>>>>>>>>>>>>>>
+[03/18 15:16:52 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000148.label >>>>>>>>>>>>>>>>
+[03/18 15:16:53 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000149.label >>>>>>>>>>>>>>>>
+[03/18 15:16:55 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000150.label >>>>>>>>>>>>>>>>
+[03/18 15:16:56 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000151.label >>>>>>>>>>>>>>>>
+[03/18 15:16:57 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000152.label >>>>>>>>>>>>>>>>
+[03/18 15:16:58 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000153.label >>>>>>>>>>>>>>>>
+[03/18 15:16:59 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000154.label >>>>>>>>>>>>>>>>
+[03/18 15:17:00 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000155.label >>>>>>>>>>>>>>>>
+[03/18 15:17:02 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000156.label >>>>>>>>>>>>>>>>
+[03/18 15:17:03 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000157.label >>>>>>>>>>>>>>>>
+[03/18 15:17:04 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000158.label >>>>>>>>>>>>>>>>
+[03/18 15:17:05 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000159.label >>>>>>>>>>>>>>>>
+[03/18 15:17:06 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000160.label >>>>>>>>>>>>>>>>
+[03/18 15:17:08 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000161.label >>>>>>>>>>>>>>>>
+[03/18 15:17:09 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000162.label >>>>>>>>>>>>>>>>
+[03/18 15:17:10 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000163.label >>>>>>>>>>>>>>>>
+[03/18 15:17:11 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000164.label >>>>>>>>>>>>>>>>
+[03/18 15:17:13 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000165.label >>>>>>>>>>>>>>>>
+[03/18 15:17:14 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000166.label >>>>>>>>>>>>>>>>
+[03/18 15:17:15 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000167.label >>>>>>>>>>>>>>>>
+[03/18 15:17:16 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000168.label >>>>>>>>>>>>>>>>
+[03/18 15:17:17 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000169.label >>>>>>>>>>>>>>>>
+[03/18 15:17:19 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000170.label >>>>>>>>>>>>>>>>
+[03/18 15:17:20 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000171.label >>>>>>>>>>>>>>>>
+[03/18 15:17:21 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000172.label >>>>>>>>>>>>>>>>
+[03/18 15:17:22 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000173.label >>>>>>>>>>>>>>>>
+[03/18 15:17:23 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000174.label >>>>>>>>>>>>>>>>
+[03/18 15:17:24 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000175.label >>>>>>>>>>>>>>>>
+[03/18 15:17:26 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000176.label >>>>>>>>>>>>>>>>
+[03/18 15:17:27 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000177.label >>>>>>>>>>>>>>>>
+[03/18 15:17:28 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000178.label >>>>>>>>>>>>>>>>
+[03/18 15:17:29 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000179.label >>>>>>>>>>>>>>>>
+[03/18 15:17:30 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000180.label >>>>>>>>>>>>>>>>
+[03/18 15:17:32 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000181.label >>>>>>>>>>>>>>>>
+[03/18 15:17:33 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000182.label >>>>>>>>>>>>>>>>
+[03/18 15:17:34 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000183.label >>>>>>>>>>>>>>>>
+[03/18 15:17:35 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000184.label >>>>>>>>>>>>>>>>
+[03/18 15:17:37 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000185.label >>>>>>>>>>>>>>>>
+[03/18 15:17:38 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000186.label >>>>>>>>>>>>>>>>
+[03/18 15:17:39 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000187.label >>>>>>>>>>>>>>>>
+[03/18 15:17:40 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000188.label >>>>>>>>>>>>>>>>
+[03/18 15:17:42 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000189.label >>>>>>>>>>>>>>>>
+[03/18 15:17:43 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000190.label >>>>>>>>>>>>>>>>
+[03/18 15:17:44 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000191.label >>>>>>>>>>>>>>>>
+[03/18 15:17:45 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000192.label >>>>>>>>>>>>>>>>
+[03/18 15:17:47 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000193.label >>>>>>>>>>>>>>>>
+[03/18 15:17:48 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000194.label >>>>>>>>>>>>>>>>
+[03/18 15:17:49 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000195.label >>>>>>>>>>>>>>>>
+[03/18 15:17:51 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000196.label >>>>>>>>>>>>>>>>
+[03/18 15:17:52 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000197.label >>>>>>>>>>>>>>>>
+[03/18 15:17:53 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000198.label >>>>>>>>>>>>>>>>
+[03/18 15:17:55 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000199.label >>>>>>>>>>>>>>>>
+[03/18 15:17:56 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000200.label >>>>>>>>>>>>>>>>
+[03/18 15:17:57 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000201.label >>>>>>>>>>>>>>>>
+[03/18 15:17:58 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000202.label >>>>>>>>>>>>>>>>
+[03/18 15:18:00 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000203.label >>>>>>>>>>>>>>>>
+[03/18 15:18:01 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000204.label >>>>>>>>>>>>>>>>
+[03/18 15:18:02 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000205.label >>>>>>>>>>>>>>>>
+[03/18 15:18:03 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000206.label >>>>>>>>>>>>>>>>
+[03/18 15:18:05 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000207.label >>>>>>>>>>>>>>>>
+[03/18 15:18:06 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000208.label >>>>>>>>>>>>>>>>
+[03/18 15:18:07 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000209.label >>>>>>>>>>>>>>>>
+[03/18 15:18:09 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000210.label >>>>>>>>>>>>>>>>
+[03/18 15:18:10 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000211.label >>>>>>>>>>>>>>>>
+[03/18 15:18:11 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000212.label >>>>>>>>>>>>>>>>
+[03/18 15:18:12 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000213.label >>>>>>>>>>>>>>>>
+[03/18 15:18:13 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000214.label >>>>>>>>>>>>>>>>
+[03/18 15:18:15 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000215.label >>>>>>>>>>>>>>>>
+[03/18 15:18:16 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000216.label >>>>>>>>>>>>>>>>
+[03/18 15:18:17 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000217.label >>>>>>>>>>>>>>>>
+[03/18 15:18:18 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000218.label >>>>>>>>>>>>>>>>
+[03/18 15:18:20 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000219.label >>>>>>>>>>>>>>>>
+[03/18 15:18:21 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000220.label >>>>>>>>>>>>>>>>
+[03/18 15:18:22 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000221.label >>>>>>>>>>>>>>>>
+[03/18 15:18:24 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000222.label >>>>>>>>>>>>>>>>
+[03/18 15:18:25 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000223.label >>>>>>>>>>>>>>>>
+[03/18 15:18:26 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000224.label >>>>>>>>>>>>>>>>
+[03/18 15:18:27 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000225.label >>>>>>>>>>>>>>>>
+[03/18 15:18:29 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000226.label >>>>>>>>>>>>>>>>
+[03/18 15:18:30 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000227.label >>>>>>>>>>>>>>>>
+[03/18 15:18:31 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000228.label >>>>>>>>>>>>>>>>
+[03/18 15:18:32 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000229.label >>>>>>>>>>>>>>>>
+[03/18 15:18:34 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000230.label >>>>>>>>>>>>>>>>
+[03/18 15:18:35 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000231.label >>>>>>>>>>>>>>>>
+[03/18 15:18:36 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000232.label >>>>>>>>>>>>>>>>
+[03/18 15:18:37 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000233.label >>>>>>>>>>>>>>>>
+[03/18 15:18:39 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000234.label >>>>>>>>>>>>>>>>
+[03/18 15:18:40 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000235.label >>>>>>>>>>>>>>>>
+[03/18 15:18:41 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000236.label >>>>>>>>>>>>>>>>
+[03/18 15:18:43 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000237.label >>>>>>>>>>>>>>>>
+[03/18 15:18:44 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000238.label >>>>>>>>>>>>>>>>
+[03/18 15:18:45 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000239.label >>>>>>>>>>>>>>>>
+[03/18 15:18:47 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000240.label >>>>>>>>>>>>>>>>
+[03/18 15:18:48 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000241.label >>>>>>>>>>>>>>>>
+[03/18 15:18:49 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000242.label >>>>>>>>>>>>>>>>
+[03/18 15:18:51 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000243.label >>>>>>>>>>>>>>>>
+[03/18 15:18:52 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000244.label >>>>>>>>>>>>>>>>
+[03/18 15:18:54 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000245.label >>>>>>>>>>>>>>>>
+[03/18 15:18:55 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000246.label >>>>>>>>>>>>>>>>
+[03/18 15:18:56 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000247.label >>>>>>>>>>>>>>>>
+[03/18 15:18:58 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000248.label >>>>>>>>>>>>>>>>
+[03/18 15:18:59 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000249.label >>>>>>>>>>>>>>>>
+[03/18 15:19:00 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000250.label >>>>>>>>>>>>>>>>
+[03/18 15:19:02 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000251.label >>>>>>>>>>>>>>>>
+[03/18 15:19:03 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000252.label >>>>>>>>>>>>>>>>
+[03/18 15:19:05 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000253.label >>>>>>>>>>>>>>>>
+[03/18 15:19:06 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000254.label >>>>>>>>>>>>>>>>
+[03/18 15:19:07 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000255.label >>>>>>>>>>>>>>>>
+[03/18 15:19:09 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000256.label >>>>>>>>>>>>>>>>
+[03/18 15:19:10 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000257.label >>>>>>>>>>>>>>>>
+[03/18 15:19:11 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000258.label >>>>>>>>>>>>>>>>
+[03/18 15:19:13 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000259.label >>>>>>>>>>>>>>>>
+[03/18 15:19:14 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000260.label >>>>>>>>>>>>>>>>
+[03/18 15:19:15 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000261.label >>>>>>>>>>>>>>>>
+[03/18 15:19:17 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000262.label >>>>>>>>>>>>>>>>
+[03/18 15:19:18 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000263.label >>>>>>>>>>>>>>>>
+[03/18 15:19:19 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000264.label >>>>>>>>>>>>>>>>
+[03/18 15:19:20 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000265.label >>>>>>>>>>>>>>>>
+[03/18 15:19:22 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000266.label >>>>>>>>>>>>>>>>
+[03/18 15:19:23 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000267.label >>>>>>>>>>>>>>>>
+[03/18 15:19:24 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000268.label >>>>>>>>>>>>>>>>
+[03/18 15:19:25 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000269.label >>>>>>>>>>>>>>>>
+[03/18 15:19:27 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000270.label >>>>>>>>>>>>>>>>
+[03/18 15:19:28 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000271.label >>>>>>>>>>>>>>>>
+[03/18 15:19:29 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000272.label >>>>>>>>>>>>>>>>
+[03/18 15:19:30 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000273.label >>>>>>>>>>>>>>>>
+[03/18 15:19:32 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000274.label >>>>>>>>>>>>>>>>
+[03/18 15:19:33 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000275.label >>>>>>>>>>>>>>>>
+[03/18 15:19:34 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000276.label >>>>>>>>>>>>>>>>
+[03/18 15:19:35 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000277.label >>>>>>>>>>>>>>>>
+[03/18 15:19:36 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000278.label >>>>>>>>>>>>>>>>
+[03/18 15:19:38 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000279.label >>>>>>>>>>>>>>>>
+[03/18 15:19:39 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000280.label >>>>>>>>>>>>>>>>
+[03/18 15:19:40 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000281.label >>>>>>>>>>>>>>>>
+[03/18 15:19:41 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000282.label >>>>>>>>>>>>>>>>
+[03/18 15:19:42 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000283.label >>>>>>>>>>>>>>>>
+[03/18 15:19:44 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000284.label >>>>>>>>>>>>>>>>
+[03/18 15:19:45 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000285.label >>>>>>>>>>>>>>>>
+[03/18 15:19:46 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000286.label >>>>>>>>>>>>>>>>
+[03/18 15:19:47 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000287.label >>>>>>>>>>>>>>>>
+[03/18 15:19:49 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000288.label >>>>>>>>>>>>>>>>
+[03/18 15:19:50 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000289.label >>>>>>>>>>>>>>>>
+[03/18 15:19:51 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000290.label >>>>>>>>>>>>>>>>
+[03/18 15:19:52 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000291.label >>>>>>>>>>>>>>>>
+[03/18 15:19:54 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000292.label >>>>>>>>>>>>>>>>
+[03/18 15:19:55 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000293.label >>>>>>>>>>>>>>>>
+[03/18 15:19:56 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000294.label >>>>>>>>>>>>>>>>
+[03/18 15:19:57 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000295.label >>>>>>>>>>>>>>>>
+[03/18 15:19:59 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000296.label >>>>>>>>>>>>>>>>
+[03/18 15:20:00 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000297.label >>>>>>>>>>>>>>>>
+[03/18 15:20:01 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000298.label >>>>>>>>>>>>>>>>
+[03/18 15:20:02 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000299.label >>>>>>>>>>>>>>>>
+[03/18 15:20:04 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000300.label >>>>>>>>>>>>>>>>
+[03/18 15:20:05 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000301.label >>>>>>>>>>>>>>>>
+[03/18 15:20:06 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000302.label >>>>>>>>>>>>>>>>
+[03/18 15:20:08 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000303.label >>>>>>>>>>>>>>>>
+[03/18 15:20:09 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000304.label >>>>>>>>>>>>>>>>
+[03/18 15:20:10 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000305.label >>>>>>>>>>>>>>>>
+[03/18 15:20:12 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000306.label >>>>>>>>>>>>>>>>
+[03/18 15:20:13 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000307.label >>>>>>>>>>>>>>>>
+[03/18 15:20:14 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000308.label >>>>>>>>>>>>>>>>
+[03/18 15:20:16 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000309.label >>>>>>>>>>>>>>>>
+[03/18 15:20:17 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000310.label >>>>>>>>>>>>>>>>
+[03/18 15:20:18 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000311.label >>>>>>>>>>>>>>>>
+[03/18 15:20:20 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000312.label >>>>>>>>>>>>>>>>
+[03/18 15:20:21 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000313.label >>>>>>>>>>>>>>>>
+[03/18 15:20:22 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000314.label >>>>>>>>>>>>>>>>
+[03/18 15:20:24 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000315.label >>>>>>>>>>>>>>>>
+[03/18 15:20:25 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000316.label >>>>>>>>>>>>>>>>
+[03/18 15:20:26 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000317.label >>>>>>>>>>>>>>>>
+[03/18 15:20:28 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000318.label >>>>>>>>>>>>>>>>
+[03/18 15:20:29 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000319.label >>>>>>>>>>>>>>>>
+[03/18 15:20:30 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000320.label >>>>>>>>>>>>>>>>
+[03/18 15:20:32 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000321.label >>>>>>>>>>>>>>>>
+[03/18 15:20:33 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000322.label >>>>>>>>>>>>>>>>
+[03/18 15:20:34 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000323.label >>>>>>>>>>>>>>>>
+[03/18 15:20:36 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000324.label >>>>>>>>>>>>>>>>
+[03/18 15:20:37 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000325.label >>>>>>>>>>>>>>>>
+[03/18 15:20:39 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000326.label >>>>>>>>>>>>>>>>
+[03/18 15:20:40 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000327.label >>>>>>>>>>>>>>>>
+[03/18 15:20:41 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000328.label >>>>>>>>>>>>>>>>
+[03/18 15:20:43 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000329.label >>>>>>>>>>>>>>>>
+[03/18 15:20:44 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000330.label >>>>>>>>>>>>>>>>
+[03/18 15:20:46 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000331.label >>>>>>>>>>>>>>>>
+[03/18 15:20:47 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000332.label >>>>>>>>>>>>>>>>
+[03/18 15:20:48 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000333.label >>>>>>>>>>>>>>>>
+[03/18 15:20:50 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000334.label >>>>>>>>>>>>>>>>
+[03/18 15:20:51 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000335.label >>>>>>>>>>>>>>>>
+[03/18 15:20:52 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000336.label >>>>>>>>>>>>>>>>
+[03/18 15:20:54 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000337.label >>>>>>>>>>>>>>>>
+[03/18 15:20:55 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000338.label >>>>>>>>>>>>>>>>
+[03/18 15:20:56 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000339.label >>>>>>>>>>>>>>>>
+[03/18 15:20:58 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000340.label >>>>>>>>>>>>>>>>
+[03/18 15:20:59 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000341.label >>>>>>>>>>>>>>>>
+[03/18 15:21:00 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000342.label >>>>>>>>>>>>>>>>
+[03/18 15:21:01 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000343.label >>>>>>>>>>>>>>>>
+[03/18 15:21:03 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000344.label >>>>>>>>>>>>>>>>
+[03/18 15:21:04 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000345.label >>>>>>>>>>>>>>>>
+[03/18 15:21:05 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000346.label >>>>>>>>>>>>>>>>
+[03/18 15:21:07 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000347.label >>>>>>>>>>>>>>>>
+[03/18 15:21:08 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000348.label >>>>>>>>>>>>>>>>
+[03/18 15:21:09 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000349.label >>>>>>>>>>>>>>>>
+[03/18 15:21:10 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000350.label >>>>>>>>>>>>>>>>
+[03/18 15:21:12 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000351.label >>>>>>>>>>>>>>>>
+[03/18 15:21:13 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000352.label >>>>>>>>>>>>>>>>
+[03/18 15:21:14 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000353.label >>>>>>>>>>>>>>>>
+[03/18 15:21:16 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000354.label >>>>>>>>>>>>>>>>
+[03/18 15:21:17 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000355.label >>>>>>>>>>>>>>>>
+[03/18 15:21:18 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000356.label >>>>>>>>>>>>>>>>
+[03/18 15:21:19 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000357.label >>>>>>>>>>>>>>>>
+[03/18 15:21:20 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000358.label >>>>>>>>>>>>>>>>
+[03/18 15:21:21 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000359.label >>>>>>>>>>>>>>>>
+[03/18 15:21:23 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000360.label >>>>>>>>>>>>>>>>
+[03/18 15:21:24 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000361.label >>>>>>>>>>>>>>>>
+[03/18 15:21:25 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000362.label >>>>>>>>>>>>>>>>
+[03/18 15:21:26 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000363.label >>>>>>>>>>>>>>>>
+[03/18 15:21:27 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000364.label >>>>>>>>>>>>>>>>
+[03/18 15:21:28 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000365.label >>>>>>>>>>>>>>>>
+[03/18 15:21:29 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000366.label >>>>>>>>>>>>>>>>
+[03/18 15:21:30 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000367.label >>>>>>>>>>>>>>>>
+[03/18 15:21:31 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000368.label >>>>>>>>>>>>>>>>
+[03/18 15:21:32 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000369.label >>>>>>>>>>>>>>>>
+[03/18 15:21:34 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000370.label >>>>>>>>>>>>>>>>
+[03/18 15:21:35 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000371.label >>>>>>>>>>>>>>>>
+[03/18 15:21:36 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000372.label >>>>>>>>>>>>>>>>
+[03/18 15:21:37 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000373.label >>>>>>>>>>>>>>>>
+[03/18 15:21:38 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000374.label >>>>>>>>>>>>>>>>
+[03/18 15:21:40 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000375.label >>>>>>>>>>>>>>>>
+[03/18 15:21:41 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000376.label >>>>>>>>>>>>>>>>
+[03/18 15:21:42 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000377.label >>>>>>>>>>>>>>>>
+[03/18 15:21:43 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000378.label >>>>>>>>>>>>>>>>
+[03/18 15:21:44 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000379.label >>>>>>>>>>>>>>>>
+[03/18 15:21:46 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000380.label >>>>>>>>>>>>>>>>
+[03/18 15:21:47 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000381.label >>>>>>>>>>>>>>>>
+[03/18 15:21:48 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000382.label >>>>>>>>>>>>>>>>
+[03/18 15:21:49 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000383.label >>>>>>>>>>>>>>>>
+[03/18 15:21:50 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000384.label >>>>>>>>>>>>>>>>
+[03/18 15:21:51 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000385.label >>>>>>>>>>>>>>>>
+[03/18 15:21:53 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000386.label >>>>>>>>>>>>>>>>
+[03/18 15:21:54 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000387.label >>>>>>>>>>>>>>>>
+[03/18 15:21:55 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000388.label >>>>>>>>>>>>>>>>
+[03/18 15:21:56 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000389.label >>>>>>>>>>>>>>>>
+[03/18 15:21:58 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000390.label >>>>>>>>>>>>>>>>
+[03/18 15:21:59 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000391.label >>>>>>>>>>>>>>>>
+[03/18 15:22:00 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000392.label >>>>>>>>>>>>>>>>
+[03/18 15:22:01 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000393.label >>>>>>>>>>>>>>>>
+[03/18 15:22:03 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000394.label >>>>>>>>>>>>>>>>
+[03/18 15:22:04 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000395.label >>>>>>>>>>>>>>>>
+[03/18 15:22:05 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000396.label >>>>>>>>>>>>>>>>
+[03/18 15:22:07 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000397.label >>>>>>>>>>>>>>>>
+[03/18 15:22:08 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000398.label >>>>>>>>>>>>>>>>
+[03/18 15:22:09 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000399.label >>>>>>>>>>>>>>>>
+[03/18 15:22:11 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000400.label >>>>>>>>>>>>>>>>
+[03/18 15:22:12 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000401.label >>>>>>>>>>>>>>>>
+[03/18 15:22:13 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000402.label >>>>>>>>>>>>>>>>
+[03/18 15:22:14 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000403.label >>>>>>>>>>>>>>>>
+[03/18 15:22:16 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000404.label >>>>>>>>>>>>>>>>
+[03/18 15:22:17 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000405.label >>>>>>>>>>>>>>>>
+[03/18 15:22:18 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000406.label >>>>>>>>>>>>>>>>
+[03/18 15:22:19 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000407.label >>>>>>>>>>>>>>>>
+[03/18 15:22:21 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000408.label >>>>>>>>>>>>>>>>
+[03/18 15:22:22 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000409.label >>>>>>>>>>>>>>>>
+[03/18 15:22:23 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000410.label >>>>>>>>>>>>>>>>
+[03/18 15:22:25 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000411.label >>>>>>>>>>>>>>>>
+[03/18 15:22:26 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000412.label >>>>>>>>>>>>>>>>
+[03/18 15:22:27 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000413.label >>>>>>>>>>>>>>>>
+[03/18 15:22:29 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000414.label >>>>>>>>>>>>>>>>
+[03/18 15:22:30 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000415.label >>>>>>>>>>>>>>>>
+[03/18 15:22:31 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000416.label >>>>>>>>>>>>>>>>
+[03/18 15:22:33 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000417.label >>>>>>>>>>>>>>>>
+[03/18 15:22:34 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000418.label >>>>>>>>>>>>>>>>
+[03/18 15:22:35 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000419.label >>>>>>>>>>>>>>>>
+[03/18 15:22:37 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000420.label >>>>>>>>>>>>>>>>
+[03/18 15:22:38 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000421.label >>>>>>>>>>>>>>>>
+[03/18 15:22:39 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000422.label >>>>>>>>>>>>>>>>
+[03/18 15:22:41 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000423.label >>>>>>>>>>>>>>>>
+[03/18 15:22:42 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000424.label >>>>>>>>>>>>>>>>
+[03/18 15:22:43 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000425.label >>>>>>>>>>>>>>>>
+[03/18 15:22:45 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000426.label >>>>>>>>>>>>>>>>
+[03/18 15:22:46 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000427.label >>>>>>>>>>>>>>>>
+[03/18 15:22:47 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000428.label >>>>>>>>>>>>>>>>
+[03/18 15:22:48 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000429.label >>>>>>>>>>>>>>>>
+[03/18 15:22:50 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000430.label >>>>>>>>>>>>>>>>
+[03/18 15:22:51 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000431.label >>>>>>>>>>>>>>>>
+[03/18 15:22:52 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000432.label >>>>>>>>>>>>>>>>
+[03/18 15:22:53 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000433.label >>>>>>>>>>>>>>>>
+[03/18 15:22:55 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000434.label >>>>>>>>>>>>>>>>
+[03/18 15:22:56 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000435.label >>>>>>>>>>>>>>>>
+[03/18 15:22:57 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000436.label >>>>>>>>>>>>>>>>
+[03/18 15:22:58 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000437.label >>>>>>>>>>>>>>>>
+[03/18 15:23:00 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000438.label >>>>>>>>>>>>>>>>
+[03/18 15:23:01 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000439.label >>>>>>>>>>>>>>>>
+[03/18 15:23:02 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000440.label >>>>>>>>>>>>>>>>
+[03/18 15:23:03 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000441.label >>>>>>>>>>>>>>>>
+[03/18 15:23:05 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000442.label >>>>>>>>>>>>>>>>
+[03/18 15:23:06 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000443.label >>>>>>>>>>>>>>>>
+[03/18 15:23:07 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000444.label >>>>>>>>>>>>>>>>
+[03/18 15:23:08 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000445.label >>>>>>>>>>>>>>>>
+[03/18 15:23:10 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000446.label >>>>>>>>>>>>>>>>
+[03/18 15:23:11 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000447.label >>>>>>>>>>>>>>>>
+[03/18 15:23:12 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000448.label >>>>>>>>>>>>>>>>
+[03/18 15:23:13 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000449.label >>>>>>>>>>>>>>>>
+[03/18 15:23:15 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000450.label >>>>>>>>>>>>>>>>
+[03/18 15:23:16 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000451.label >>>>>>>>>>>>>>>>
+[03/18 15:23:17 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000452.label >>>>>>>>>>>>>>>>
+[03/18 15:23:18 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000453.label >>>>>>>>>>>>>>>>
+[03/18 15:23:19 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000454.label >>>>>>>>>>>>>>>>
+[03/18 15:23:21 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000455.label >>>>>>>>>>>>>>>>
+[03/18 15:23:22 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000456.label >>>>>>>>>>>>>>>>
+[03/18 15:23:23 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000457.label >>>>>>>>>>>>>>>>
+[03/18 15:23:24 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000458.label >>>>>>>>>>>>>>>>
+[03/18 15:23:25 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000459.label >>>>>>>>>>>>>>>>
+[03/18 15:23:26 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000460.label >>>>>>>>>>>>>>>>
+[03/18 15:23:27 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000461.label >>>>>>>>>>>>>>>>
+[03/18 15:23:28 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000462.label >>>>>>>>>>>>>>>>
+[03/18 15:23:29 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000463.label >>>>>>>>>>>>>>>>
+[03/18 15:23:30 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000464.label >>>>>>>>>>>>>>>>
+[03/18 15:23:31 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000465.label >>>>>>>>>>>>>>>>
+[03/18 15:23:32 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000466.label >>>>>>>>>>>>>>>>
+[03/18 15:23:33 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000467.label >>>>>>>>>>>>>>>>
+[03/18 15:23:35 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000468.label >>>>>>>>>>>>>>>>
+[03/18 15:23:36 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000469.label >>>>>>>>>>>>>>>>
+[03/18 15:23:37 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000470.label >>>>>>>>>>>>>>>>
+[03/18 15:23:38 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000471.label >>>>>>>>>>>>>>>>
+[03/18 15:23:40 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000472.label >>>>>>>>>>>>>>>>
+[03/18 15:23:41 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000473.label >>>>>>>>>>>>>>>>
+[03/18 15:23:42 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000474.label >>>>>>>>>>>>>>>>
+[03/18 15:23:43 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000475.label >>>>>>>>>>>>>>>>
+[03/18 15:23:45 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000476.label >>>>>>>>>>>>>>>>
+[03/18 15:23:46 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000477.label >>>>>>>>>>>>>>>>
+[03/18 15:23:47 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000478.label >>>>>>>>>>>>>>>>
+[03/18 15:23:48 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000479.label >>>>>>>>>>>>>>>>
+[03/18 15:23:50 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000480.label >>>>>>>>>>>>>>>>
+[03/18 15:23:51 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000481.label >>>>>>>>>>>>>>>>
+[03/18 15:23:52 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000482.label >>>>>>>>>>>>>>>>
+[03/18 15:23:53 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000483.label >>>>>>>>>>>>>>>>
+[03/18 15:23:54 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000484.label >>>>>>>>>>>>>>>>
+[03/18 15:23:56 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000485.label >>>>>>>>>>>>>>>>
+[03/18 15:23:57 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000486.label >>>>>>>>>>>>>>>>
+[03/18 15:23:58 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000487.label >>>>>>>>>>>>>>>>
+[03/18 15:23:59 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000488.label >>>>>>>>>>>>>>>>
+[03/18 15:24:01 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000489.label >>>>>>>>>>>>>>>>
+[03/18 15:24:02 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000490.label >>>>>>>>>>>>>>>>
+[03/18 15:24:03 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000491.label >>>>>>>>>>>>>>>>
+[03/18 15:24:04 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000492.label >>>>>>>>>>>>>>>>
+[03/18 15:24:05 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000493.label >>>>>>>>>>>>>>>>
+[03/18 15:24:07 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000494.label >>>>>>>>>>>>>>>>
+[03/18 15:24:08 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000495.label >>>>>>>>>>>>>>>>
+[03/18 15:24:09 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000496.label >>>>>>>>>>>>>>>>
+[03/18 15:24:10 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000497.label >>>>>>>>>>>>>>>>
+[03/18 15:24:11 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000498.label >>>>>>>>>>>>>>>>
+[03/18 15:24:13 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000499.label >>>>>>>>>>>>>>>>
+[03/18 15:24:14 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000500.label >>>>>>>>>>>>>>>>
+[03/18 15:24:15 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000501.label >>>>>>>>>>>>>>>>
+[03/18 15:24:16 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000502.label >>>>>>>>>>>>>>>>
+[03/18 15:24:17 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000503.label >>>>>>>>>>>>>>>>
+[03/18 15:24:18 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000504.label >>>>>>>>>>>>>>>>
+[03/18 15:24:19 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000505.label >>>>>>>>>>>>>>>>
+[03/18 15:24:20 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000506.label >>>>>>>>>>>>>>>>
+[03/18 15:24:21 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000507.label >>>>>>>>>>>>>>>>
+[03/18 15:24:23 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000508.label >>>>>>>>>>>>>>>>
+[03/18 15:24:24 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000509.label >>>>>>>>>>>>>>>>
+[03/18 15:24:25 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000510.label >>>>>>>>>>>>>>>>
+[03/18 15:24:26 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000511.label >>>>>>>>>>>>>>>>
+[03/18 15:24:27 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000512.label >>>>>>>>>>>>>>>>
+[03/18 15:24:28 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000513.label >>>>>>>>>>>>>>>>
+[03/18 15:24:29 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000514.label >>>>>>>>>>>>>>>>
+[03/18 15:24:31 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000515.label >>>>>>>>>>>>>>>>
+[03/18 15:24:32 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000516.label >>>>>>>>>>>>>>>>
+[03/18 15:24:33 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000517.label >>>>>>>>>>>>>>>>
+[03/18 15:24:34 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000518.label >>>>>>>>>>>>>>>>
+[03/18 15:24:35 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000519.label >>>>>>>>>>>>>>>>
+[03/18 15:24:36 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000520.label >>>>>>>>>>>>>>>>
+[03/18 15:24:37 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000521.label >>>>>>>>>>>>>>>>
+[03/18 15:24:38 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000522.label >>>>>>>>>>>>>>>>
+[03/18 15:24:39 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000523.label >>>>>>>>>>>>>>>>
+[03/18 15:24:40 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000524.label >>>>>>>>>>>>>>>>
+[03/18 15:24:41 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000525.label >>>>>>>>>>>>>>>>
+[03/18 15:24:42 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000526.label >>>>>>>>>>>>>>>>
+[03/18 15:24:43 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000527.label >>>>>>>>>>>>>>>>
+[03/18 15:24:44 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000528.label >>>>>>>>>>>>>>>>
+[03/18 15:24:45 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000529.label >>>>>>>>>>>>>>>>
+[03/18 15:24:46 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000530.label >>>>>>>>>>>>>>>>
+[03/18 15:24:47 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000531.label >>>>>>>>>>>>>>>>
+[03/18 15:24:48 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000532.label >>>>>>>>>>>>>>>>
+[03/18 15:24:49 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000533.label >>>>>>>>>>>>>>>>
+[03/18 15:24:50 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000534.label >>>>>>>>>>>>>>>>
+[03/18 15:24:50 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000535.label >>>>>>>>>>>>>>>>
+[03/18 15:24:51 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000536.label >>>>>>>>>>>>>>>>
+[03/18 15:24:52 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000537.label >>>>>>>>>>>>>>>>
+[03/18 15:24:53 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000538.label >>>>>>>>>>>>>>>>
+[03/18 15:24:54 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000539.label >>>>>>>>>>>>>>>>
+[03/18 15:24:55 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000540.label >>>>>>>>>>>>>>>>
+[03/18 15:24:56 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000541.label >>>>>>>>>>>>>>>>
+[03/18 15:24:57 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000542.label >>>>>>>>>>>>>>>>
+[03/18 15:24:58 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000543.label >>>>>>>>>>>>>>>>
+[03/18 15:24:59 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000544.label >>>>>>>>>>>>>>>>
+[03/18 15:25:00 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000545.label >>>>>>>>>>>>>>>>
+[03/18 15:25:01 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000546.label >>>>>>>>>>>>>>>>
+[03/18 15:25:02 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000547.label >>>>>>>>>>>>>>>>
+[03/18 15:25:03 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000548.label >>>>>>>>>>>>>>>>
+[03/18 15:25:04 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000549.label >>>>>>>>>>>>>>>>
+[03/18 15:25:05 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000550.label >>>>>>>>>>>>>>>>
+[03/18 15:25:06 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000551.label >>>>>>>>>>>>>>>>
+[03/18 15:25:07 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000552.label >>>>>>>>>>>>>>>>
+[03/18 15:25:07 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000553.label >>>>>>>>>>>>>>>>
+[03/18 15:25:08 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000554.label >>>>>>>>>>>>>>>>
+[03/18 15:25:09 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000555.label >>>>>>>>>>>>>>>>
+[03/18 15:25:10 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000556.label >>>>>>>>>>>>>>>>
+[03/18 15:25:11 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000557.label >>>>>>>>>>>>>>>>
+[03/18 15:25:12 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000558.label >>>>>>>>>>>>>>>>
+[03/18 15:25:13 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000559.label >>>>>>>>>>>>>>>>
+[03/18 15:25:14 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000560.label >>>>>>>>>>>>>>>>
+[03/18 15:25:15 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000561.label >>>>>>>>>>>>>>>>
+[03/18 15:25:16 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000562.label >>>>>>>>>>>>>>>>
+[03/18 15:25:17 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000563.label >>>>>>>>>>>>>>>>
+[03/18 15:25:18 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000564.label >>>>>>>>>>>>>>>>
+[03/18 15:25:19 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000565.label >>>>>>>>>>>>>>>>
+[03/18 15:25:20 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000566.label >>>>>>>>>>>>>>>>
+[03/18 15:25:21 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000567.label >>>>>>>>>>>>>>>>
+[03/18 15:25:22 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000568.label >>>>>>>>>>>>>>>>
+[03/18 15:25:22 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000569.label >>>>>>>>>>>>>>>>
+[03/18 15:25:23 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000570.label >>>>>>>>>>>>>>>>
+[03/18 15:25:24 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000571.label >>>>>>>>>>>>>>>>
+[03/18 15:25:25 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000572.label >>>>>>>>>>>>>>>>
+[03/18 15:25:26 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000573.label >>>>>>>>>>>>>>>>
+[03/18 15:25:27 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000574.label >>>>>>>>>>>>>>>>
+[03/18 15:25:28 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000575.label >>>>>>>>>>>>>>>>
+[03/18 15:25:29 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000576.label >>>>>>>>>>>>>>>>
+[03/18 15:25:30 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000577.label >>>>>>>>>>>>>>>>
+[03/18 15:25:31 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000578.label >>>>>>>>>>>>>>>>
+[03/18 15:25:32 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000579.label >>>>>>>>>>>>>>>>
+[03/18 15:25:33 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000580.label >>>>>>>>>>>>>>>>
+[03/18 15:25:34 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000581.label >>>>>>>>>>>>>>>>
+[03/18 15:25:35 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000582.label >>>>>>>>>>>>>>>>
+[03/18 15:25:36 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000583.label >>>>>>>>>>>>>>>>
+[03/18 15:25:37 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000584.label >>>>>>>>>>>>>>>>
+[03/18 15:25:38 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000585.label >>>>>>>>>>>>>>>>
+[03/18 15:25:38 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000586.label >>>>>>>>>>>>>>>>
+[03/18 15:25:39 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000587.label >>>>>>>>>>>>>>>>
+[03/18 15:25:40 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000588.label >>>>>>>>>>>>>>>>
+[03/18 15:25:41 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000589.label >>>>>>>>>>>>>>>>
+[03/18 15:25:42 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000590.label >>>>>>>>>>>>>>>>
+[03/18 15:25:43 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000591.label >>>>>>>>>>>>>>>>
+[03/18 15:25:44 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000592.label >>>>>>>>>>>>>>>>
+[03/18 15:25:44 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000593.label >>>>>>>>>>>>>>>>
+[03/18 15:25:45 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000594.label >>>>>>>>>>>>>>>>
+[03/18 15:25:46 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000595.label >>>>>>>>>>>>>>>>
+[03/18 15:25:47 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000596.label >>>>>>>>>>>>>>>>
+[03/18 15:25:48 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000597.label >>>>>>>>>>>>>>>>
+[03/18 15:25:49 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000598.label >>>>>>>>>>>>>>>>
+[03/18 15:25:50 main-logger]: >>>>>>>>>>>>>>>> Generated /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences//08/predictions/000599.label >>>>>>>>>>>>>>>>

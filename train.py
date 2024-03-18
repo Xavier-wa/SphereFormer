@@ -444,7 +444,7 @@ def main_worker(gpu, ngpus_per_node, argss):
         
         if args.evalType == "test":
             if args.use_tta:
-                test_tta(test_loader, model, criterion,learning_label_inv,args.eval_path)
+                test_tta(test_loader, model, criterion,args,learning_label_inv)
             else:
             # test(val_loader, model, criterion)
                 pass
@@ -953,14 +953,14 @@ def validate_distance(val_loader, model, criterion):
     return loss_meter.avg, mIoU, mAcc, allAcc
 
 
-def test_tta(test_loader, model, criterion,learning_label_inv,path):
+def test_tta(test_loader,model, criterion,args,learning_label_inv):
     if main_process():
         logger.info('>>>>>>>>>>>>>>>> Start Evaluation >>>>>>>>>>>>>>>>')
     data_time = AverageMeter()
     
     torch.cuda.empty_cache()
     
-    
+    path = args.eval_path
     model.eval()
     end = time.time()
     for i, batch_data_list in enumerate(test_loader):
@@ -991,16 +991,18 @@ def test_tta(test_loader, model, criterion,learning_label_inv,path):
                 output_i = model(sinput, xyz, batch)
                 output_i = F.softmax(output_i[inds_reconstruct, :], -1)
                 output = output + output_i
+
             output = output / len(batch_data_list)
             #得到最大类，然后映射
             output = torch.argmax(output,1)
-
+            output += 1
+            output[output==args.ignore_label+1] -=  (args.ignore_label+1)
             #映射原始标签
             for i in range(len(learning_label_inv)):
-                output[output==i] = learning_label_inv[i] + 1000 #+1000临时替换，防止得到的gt标签在0-19，可能导致后面又被换错
-            output -= 1000 
+                output[output==i] = learning_label_inv[i] + 100 #+1000临时替换，防止得到的gt标签在0-19，可能导致后面又被换错
+            output -= 100 
 
-            label = output.cpu().numpy().astype(np.int32)
+            label = output.cpu().numpy().astype(np.uint32)
 
             #输出成文件
             file_seq,file_name = file_path[0][-22:-20],file_path[0][-10:-4]+'.label'
