@@ -109,11 +109,13 @@ class SemanticKITTI(torch.utils.data.Dataset):
 
         file_path = self.files[index]
 
+
         raw_data = np.fromfile(file_path, dtype=np.float32).reshape((-1, 4))
-        annotated_data = np.fromfile(file_path.replace('velodyne', 'labels')[:-3] + 'label',
-                                        dtype=np.uint32).reshape((-1, 1))
-        annotated_data = annotated_data & 0xFFFF  # delete high 16 digits binary
-        annotated_data = np.vectorize(self.learning_map.__getitem__)(annotated_data)
+        if self.split != 'test':
+            annotated_data = np.fromfile(file_path.replace('velodyne', 'labels')[:-3] + 'label',
+                                            dtype=np.uint32).reshape((-1, 1))
+            annotated_data = annotated_data & 0xFFFF  # delete high 16 digits binary
+            annotated_data = np.vectorize(self.learning_map.__getitem__)(annotated_data)
 
         points = raw_data[:, :4]
 

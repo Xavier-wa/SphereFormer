@@ -22,7 +22,7 @@ from tensorboardX import SummaryWriter
 
 from util import config, transform
 from util.common_util import AverageMeter, intersectionAndUnionGPU, find_free_port
-from util.data_util import collate_fn_limit, collation_fn_voxelmean, collation_fn_voxelmean_tta
+from util.data_util import collate_fn_limit, collation_fn_voxelmean, collation_fn_voxelmean_tta,collation_fn_voxelmean_tta_test
 from util.logger import get_logger
 from util.lr import MultiStepWithWarmup, PolyLR, PolyLRwithWarmup, Constant
 
@@ -338,6 +338,25 @@ def main_worker(gpu, ngpus_per_node, argss):
     else:
         raise ValueError("The dataset {} is not supported.".format(args.data_name))
 
+    '''Xavier Use'''
+    if args.data_name == 'semantic_kitti': 
+        test_data = SemanticKITTI(data_path=args.data_root, 
+            voxel_size=args.voxel_size, 
+            split='test', 
+            rotate_aug=args.use_tta, 
+            flip_aug=args.use_tta, 
+            scale_aug=args.use_tta, 
+            transform_aug=args.use_tta, 
+            xyz_norm=args.xyz_norm, 
+            pc_range=args.get("pc_range", None), 
+            use_tta=args.use_tta,
+            vote_num=args.vote_num,
+        )
+    '''Xavier Use'''
+
+
+
+
     if main_process():
         logger.info("val_data samples: '{}'".format(len(val_data)))
 
@@ -364,6 +383,32 @@ def main_worker(gpu, ngpus_per_node, argss):
             sampler=val_sampler, 
             collate_fn=collation_fn_voxelmean
         )
+    
+    '''Xavier Use'''
+    if args.distributed:
+        test_sampler = torch.utils.data.distributed.DistributedSampler(test_data, shuffle=False)
+    else:
+        test_sampler = None
+
+    if getattr(args,"use_tta",False):
+        test_loader = torch.utils.data.DataLoader(test_data, 
+            batch_size=args.batch_size_val, 
+            shuffle=False, 
+            num_workers=args.workers, 
+            pin_memory=True, 
+            sampler=test_sampler, 
+            collate_fn=collation_fn_voxelmean_tta_test
+        )
+    else:
+         test_loader = torch.utils.data.DataLoader(test_data, 
+            batch_size=args.batch_size_val, 
+            shuffle=False, 
+            num_workers=args.workers,
+            pin_memory=True, 
+            sampler=val_sampler, 
+            collate_fn=collation_fn_voxelmean
+        )
+    '''Xavier Use'''
 
     # set scheduler
     if args.scheduler == 'Poly':
@@ -393,11 +438,23 @@ def main_worker(gpu, ngpus_per_node, argss):
         scaler = None
 
     if args.val:
-        if args.use_tta:
-            validate_tta(val_loader, model, criterion)
+        '''Xavier Use'''
+        with open(args.label_mapping) as y:
+            learning_label_inv = yaml.safe_load(y)["learning_map_inv"]
+        
+        if args.evalType == "test":
+            if args.use_tta:
+                test_tta(test_loader, model, criterion,learning_label_inv,args.eval_path)
+            else:
+            # test(val_loader, model, criterion)
+                pass
+                # test_distance(test_loader, model, criterion)
         else:
-            # validate(val_loader, model, criterion)
-            validate_distance(val_loader, model, criterion)
+            if args.use_tta:
+                validate_tta(val_loader, model, criterion)
+            else:
+                # validate(val_loader, model, criterion)
+                validate_distance(val_loader, model, criterion)
         exit()
 
     for epoch in range(args.start_epoch, args.epochs):
@@ -896,6 +953,65 @@ def validate_distance(val_loader, model, criterion):
     return loss_meter.avg, mIoU, mAcc, allAcc
 
 
+def test_tta(test_loader, model, criterion,learning_label_inv,path):
+    if main_process():
+        logger.info('>>>>>>>>>>>>>>>> Start Evaluation >>>>>>>>>>>>>>>>')
+    data_time = AverageMeter()
+    
+    torch.cuda.empty_cache()
+    
+    
+    model.eval()
+    end = time.time()
+    for i, batch_data_list in enumerate(test_loader):
+        data_time.update(time.time() - end)
+        
+
+        with torch.no_grad():
+            output = 0.0
+            for batch_data in batch_data_list:
+
+                (coord, xyz, feat, target, offset, inds_reconstruct,file_path) = batch_data
+                inds_reconstruct = inds_reconstruct.cuda(non_blocking=True)
+
+                offset_ = offset.clone()
+                offset_[1:] = offset_[1:] - offset_[:-1]
+                batch = torch.cat([torch.tensor([ii]*o) for ii,o in enumerate(offset_)], 0).long()
+
+                coord = torch.cat([batch.unsqueeze(-1), coord], -1)
+                spatial_shape = np.clip((coord.max(0)[0][1:] + 1).numpy(), 128, None)
+            
+                coord, xyz, feat, target, offset = coord.cuda(non_blocking=True), xyz.cuda(non_blocking=True), feat.cuda(non_blocking=True), target.cuda(non_blocking=True), offset.cuda(non_blocking=True)
+                batch = batch.cuda(non_blocking=True)
+
+                sinput = spconv.SparseConvTensor(feat, coord.int(), spatial_shape, args.batch_size_val)
+
+                assert batch.shape[0] == feat.shape[0]
+
+                output_i = model(sinput, xyz, batch)
+                output_i = F.softmax(output_i[inds_reconstruct, :], -1)
+                output = output + output_i
+            output = output / len(batch_data_list)
+            #得到最大类，然后映射
+            output = torch.argmax(output,1)
+
+            #映射原始标签
+            for i in range(len(learning_label_inv)):
+                output[output==i] = learning_label_inv[i] + 1000 #+1000临时替换，防止得到的gt标签在0-19，可能导致后面又被换错
+            output -= 1000 
+
+            label = output.cpu().numpy().astype(np.int32)
+
+            #输出成文件
+            file_seq,file_name = file_path[0][-22:-20],file_path[0][-10:-4]+'.label'
+            output_path = f'{path}/{file_seq}/predictions/{file_name}'
+            directory = os.path.dirname(output_path)
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+            label.tofile(output_path)
+            logger.info(f'>>>>>>>>>>>>>>>> Generated {output_path} >>>>>>>>>>>>>>>>')
+def test(test_loader, model, criterion):
+    pass
 if __name__ == '__main__':
     import gc
     gc.collect()

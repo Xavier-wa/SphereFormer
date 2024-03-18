@@ -1,6 +1,6 @@
 DATA:
   data_name: semantic_kitti
-  data_root: YOUR_DATA_ROOT/SemanticKITTI/dataset ## Fill in the data path 
+  data_root: /mnt/storage/dataset/semanticKitti/dataset/  ## Fill in the data path 
   label_mapping: util/semantic-kitti.yaml
   classes: 19
   fea_dim: 6
@@ -36,7 +36,7 @@ TRAIN:
   grad_checkpoint_layers: []
   a: 0.0125
   loss_name: ce_loss
-  use_tta: False
+  use_tta: True
   vote_num: 4
 
   # training
@@ -47,28 +47,29 @@ TRAIN:
 
   power: 0.9
   use_amp: True
-  train_gpu: [0,1,2,3] 
-  workers: 16  # data loader workers 
-  batch_size: 8 # batch size for training
-  batch_size_val: 8 # batch size for validation during training, memory and speed tradeoff
+  train_gpu: [0] 
+  workers: 10  # data loader workers 
+  batch_size: 12 # batch size for training
+  batch_size_val: 1 # batch size for validation during training, memory and speed tradeoff
   base_lr: 0.006 
   epochs: 50 
   start_epoch: 0
   momentum: 0.9
   weight_decay: 0.02 
-  drop_rate: 0.5
+  drop_rate: 0.5W
 
   ignore_label: 255
   manual_seed: 123
   print_freq: 10
   save_freq: 1
   save_path: runs/semantic_kitti_unet32_spherical_transformer
-  weight:  # path to initial weight (default: none)
+  weight:  /home/guye/RidarS/SphereFormer/pretrained/model_semantic_kitti.pth # path to initial weight (default: none)
   resume:  # path to latest checkpoint (default: none)
   evaluate: True  # evaluate on validation set, extra gpu memory needed and small batch_size_val is recommend
   eval_freq: 1
-  val: False
-  
+  val: True
+  evalType: test
+  eval_path: /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences/
 Distributed:
   dist_url: tcp://127.0.0.1:6789
   dist_backend: 'nccl'
