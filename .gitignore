@@ -100,3 +100,4 @@ data/val
 debug/
 spconv/
 
+shell_log/*

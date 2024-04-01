@@ -9,7 +9,6 @@ from spconv.core import ConvAlgo
 from collections import OrderedDict
 from torch_scatter import scatter_mean
 from model.spherical_transformer import SphereFormer
-
 class ResidualBlock(SparseModule):
     def __init__(self, in_channels, out_channels, norm_fn, indice_key=None):
         super().__init__()

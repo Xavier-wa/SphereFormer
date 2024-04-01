@@ -47,8 +47,8 @@ TRAIN:
 
   power: 0.9
   use_amp: True
-  train_gpu: [0] 
-  workers: 10  # data loader workers 
+  train_gpu: [1] 
+  workers: 12  # data loader workers 
   batch_size: 12 # batch size for training
   batch_size_val: 1 # batch size for validation during training, memory and speed tradeoff
   base_lr: 0.006 
@@ -56,7 +56,7 @@ TRAIN:
   start_epoch: 0
   momentum: 0.9
   weight_decay: 0.02 
-  drop_rate: 0.5W
+  drop_rate: 0.5
 
   ignore_label: 255
   manual_seed: 123
@@ -69,7 +69,7 @@ TRAIN:
   eval_freq: 1
   val: True
   evalType: test
-  eval_path: /mnt/storage/dataset/semanticKitti/sphereFormer/pretrained/sequences/
+  eval_path: /mnt/storage/dataset/semanticKitti/predictions/SphereFormer/sequences
 Distributed:
   dist_url: tcp://127.0.0.1:6789
   dist_backend: 'nccl'

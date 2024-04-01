@@ -9,6 +9,7 @@ from util.data_util import data_prepare
 
 #Elastic distortion
 def elastic(x, gran, mag):
+    #kernel
     blur0 = np.ones((3, 1, 1)).astype('float32') / 3
     blur1 = np.ones((1, 3, 1)).astype('float32') / 3
     blur2 = np.ones((1, 1, 3)).astype('float32') / 3
@@ -167,6 +168,7 @@ class SemanticKITTI(torch.utils.data.Dataset):
         feats = points
         xyz = points[:, :3]
 
+        #pc_range limit
         if self.pc_range is not None:
             xyz = np.clip(xyz, self.pc_range[0], self.pc_range[1])
 

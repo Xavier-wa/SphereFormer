@@ -748,7 +748,7 @@ def validate_tta(val_loader, model, criterion):
     model.eval()
     end = time.time()
     for i, batch_data_list in enumerate(val_loader):
-
+        # bs = time.time()
         data_time.update(time.time() - end)
     
         with torch.no_grad():
@@ -814,7 +814,7 @@ def validate_tta(val_loader, model, criterion):
                                                           batch_time=batch_time,
                                                           loss_meter=loss_meter,
                                                           accuracy=accuracy))
-
+        # logger.info(f'{time.time()-bs}')
     iou_class = intersection_meter.sum / (union_meter.sum + 1e-10)
     accuracy_class = intersection_meter.sum / (target_meter.sum + 1e-10)
     mIoU = np.mean(iou_class)
@@ -969,8 +969,8 @@ def test_tta(test_loader,model, criterion,args,learning_label_inv):
 
         with torch.no_grad():
             output = 0.0
+            
             for batch_data in batch_data_list:
-
                 (coord, xyz, feat, target, offset, inds_reconstruct,file_path) = batch_data
                 inds_reconstruct = inds_reconstruct.cuda(non_blocking=True)
 
@@ -987,31 +987,34 @@ def test_tta(test_loader,model, criterion,args,learning_label_inv):
                 sinput = spconv.SparseConvTensor(feat, coord.int(), spatial_shape, args.batch_size_val)
 
                 assert batch.shape[0] == feat.shape[0]
-
+                
                 output_i = model(sinput, xyz, batch)
                 output_i = F.softmax(output_i[inds_reconstruct, :], -1)
                 output = output + output_i
 
             output = output / len(batch_data_list)
-            #得到最大类，然后映射
+            logits = output.clone().cpu().numpy()
+            #get the max arg
             output = torch.argmax(output,1)
-            output += 1
+            output += 1  
             output[output==args.ignore_label+1] -=  (args.ignore_label+1)
-            #映射原始标签
+            #mapping inv
             for i in range(len(learning_label_inv)):
-                output[output==i] = learning_label_inv[i] + 100 #+1000临时替换，防止得到的gt标签在0-19，可能导致后面又被换错
+                output[output==i] = learning_label_inv[i] + 100 #+100 to avoid some label be mapped twice
             output -= 100 
 
             label = output.cpu().numpy().astype(np.uint32)
 
-            #输出成文件
+            #Generated file
             file_seq,file_name = file_path[0][-22:-20],file_path[0][-10:-4]+'.label'
+            logits.tofile(f'{path}/{file_seq}/spformer_preLogits/{file_name}'.replace('label','npy'))
             output_path = f'{path}/{file_seq}/predictions/{file_name}'
             directory = os.path.dirname(output_path)
             if not os.path.exists(directory):
                 os.makedirs(directory)
             label.tofile(output_path)
             logger.info(f'>>>>>>>>>>>>>>>> Generated {output_path} >>>>>>>>>>>>>>>>')
+
 def test(test_loader, model, criterion):
     pass
 if __name__ == '__main__':
